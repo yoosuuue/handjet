@@ -7,28 +7,23 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        /* * [폰트 파일 연결]
-         * 같은 폴더에 있는 'HandjetVF-All.ttf' 파일을 불러옵니다.
-         * format('truetype')을 명시해주면 브라우저가 ttf 파일임을 인식합니다.
-         */
+        /* [폰트 설정] 파일명이 HandjetVF-All.ttf 인지 꼭 확인하세요! */
         @font-face {
-            font-family: 'HandjetVariable';
-            src: url('./HandjetVF-All.ttf') format('truetype');
+            font-family: 'HandjetLocal';
+            src: url('HandjetVF-All.ttf') format('truetype');
             font-weight: 100 900;
+            font-style: normal;
         }
 
-        /* 기본 설정 */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
         }
 
-        /* 에디터 스타일: Handjet 폰트 적용 */
         #editor {
-            font-family: 'HandjetVariable', sans-serif;
+            font-family: 'HandjetLocal', sans-serif; 
             outline: none;
-            /* 초기값: 두께 400, 모양 0(기본), 그리드 1.0 */
-            font-variation-settings: 'wght' 400, 'ELSH' 0, 'ELGR' 1.0;
+            font-variation-settings: 'wght' 400, 'ELSH' 2, 'ELGR' 1.0;
             transition: font-variation-settings 0.1s linear;
         }
 
@@ -38,143 +33,81 @@
             pointer-events: none;
         }
 
-        /* 슬라이더 스타일 */
-        input[type=range] {
-            -webkit-appearance: none; 
-            background: transparent; 
-        }
+        input[type=range] { -webkit-appearance: none; background: transparent; }
         input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 16px;
-            width: 16px;
-            border-radius: 50%;
-            background: #2563EB;
-            cursor: pointer;
-            margin-top: -6px; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            -webkit-appearance: none; height: 16px; width: 16px;
+            border-radius: 50%; background: #2563EB; cursor: pointer;
+            margin-top: -6px; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
         input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            cursor: pointer;
-            background: #E2E8F0;
-            border-radius: 2px;
+            width: 100%; height: 4px; cursor: pointer;
+            background: #E2E8F0; border-radius: 2px;
         }
         @media (prefers-color-scheme: dark) {
-            input[type=range]::-webkit-slider-runnable-track {
-                background: #4B5563;
-            }
+            input[type=range]::-webkit-slider-runnable-track { background: #4B5563; }
         }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 h-screen flex flex-col relative transition-colors duration-300">
 
-    <!-- 상단 파일명 표시 -->
     <header class="absolute top-0 right-0 p-4 z-50 flex items-center gap-4">
         <div class="text-xs text-gray-500 font-mono">Font: HandjetVF-All.ttf</div>
     </header>
 
-    <!-- 메인 텍스트 에디터 -->
     <main class="flex-grow w-full h-full flex items-center justify-center p-4 sm:p-10 relative z-10">
-        <div 
-            id="editor" 
-            contenteditable="true" 
-            spellcheck="false"
-            class="w-full h-full text-center text-5xl sm:text-7xl md:text-8xl lg:text-9xl break-words whitespace-pre-wrap overflow-y-auto flex flex-col justify-center items-center scrollbar-hide focus:outline-none"
-        >
-Handjet
-Font
-Test
+        <div id="editor" contenteditable="true" spellcheck="false" class="w-full h-full text-center text-5xl sm:text-7xl md:text-8xl lg:text-9xl break-words whitespace-pre-wrap overflow-y-auto flex flex-col justify-center items-center scrollbar-hide focus:outline-none">
+핸드젯
+한글판
+테스트
         </div>
     </main>
 
-    <!-- 컨트롤 패널 -->
     <footer class="fixed bottom-0 left-0 w-full p-6 bg-white/90 dark:bg-black/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-50 transition-all duration-300">
         <div class="max-w-4xl mx-auto">
-            
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-2">
-                <!-- 
-                   Handjet 폰트의 고유 축(Axis) 설정 
-                   1. wght (Weight): 100 ~ 900
-                   2. ELSH (Element Shape): 0 ~ 16 (픽셀 모양 변경)
-                   3. ELGR (Element Grid): 1.0 ~ 2.0 (그리드 밀도)
-                -->
-
-                <!-- Weight (두께) -->
                 <div class="flex flex-col gap-2">
                     <div class="flex justify-between items-center text-sm font-medium text-gray-600 dark:text-gray-400">
-                        <label>Weight (두께)</label>
-                        <span id="val1" class="font-mono text-blue-600 dark:text-blue-400">400</span>
+                        <label>Weight</label> <span id="val1" class="font-mono text-blue-600">400</span>
                     </div>
                     <input type="range" id="slider1" min="100" max="900" value="400" step="1" class="w-full">
                 </div>
-
-                <!-- Element Shape (픽셀 모양) -->
                 <div class="flex flex-col gap-2">
                     <div class="flex justify-between items-center text-sm font-medium text-gray-600 dark:text-gray-400">
-                        <label>Element Shape (모양)</label>
-                        <span id="val2" class="font-mono text-blue-600 dark:text-blue-400">0</span>
+                        <label>Shape (ELSH)</label> <span id="val2" class="font-mono text-blue-600">2</span>
                     </div>
-                    <!-- Handjet의 ELSH는 0부터 16까지 다양한 모양을 제공합니다 -->
-                    <input type="range" id="slider2" min="0" max="16" value="0" step="0.1" class="w-full">
+                    <input type="range" id="slider2" min="0" max="16" value="2" step="0.1" class="w-full">
                 </div>
-
-                <!-- Element Grid (그리드) -->
                 <div class="flex flex-col gap-2">
                     <div class="flex justify-between items-center text-sm font-medium text-gray-600 dark:text-gray-400">
-                        <label>Element Grid (밀도)</label>
-                        <span id="val3" class="font-mono text-blue-600 dark:text-blue-400">1.0</span>
+                        <label>Grid (ELGR)</label> <span id="val3" class="font-mono text-blue-600">1.0</span>
                     </div>
-                    <!-- Handjet의 ELGR는 1.0 ~ 2.0 범위입니다 -->
                     <input type="range" id="slider3" min="1.0" max="2.0" value="1.0" step="0.01" class="w-full">
                 </div>
-            </div>
-            
-            <div class="text-center mt-4 text-[10px] text-gray-400">
-                * Handjet 전용 축: Weight(wght), Element Shape(ELSH), Element Grid(ELGR)
             </div>
         </div>
     </footer>
 
     <script>
         const editor = document.getElementById('editor');
-        
-        const slider1 = document.getElementById('slider1'); // Weight
-        const slider2 = document.getElementById('slider2'); // ELSH
-        const slider3 = document.getElementById('slider3'); // ELGR
+        const [s1, s2, s3] = ['slider1', 'slider2', 'slider3'].map(id => document.getElementById(id));
+        const [v1, v2, v3] = ['val1', 'val2', 'val3'].map(id => document.getElementById(id));
 
-        const val1 = document.getElementById('val1');
-        const val2 = document.getElementById('val2');
-        const val3 = document.getElementById('val3');
-
-        function updateFont() {
-            const wght = slider1.value;
-            const elsh = slider2.value;
-            const elgr = slider3.value;
-
-            // Handjet의 축 이름(ELSH, ELGR)을 사용하여 설정합니다.
-            // 대소문자를 구분하므로 정확히 입력해야 합니다.
+        function update() {
+            const wght = s1.value;
+            const elsh = s2.value;
+            const elgr = s3.value;
             editor.style.fontVariationSettings = `'wght' ${wght}, 'ELSH' ${elsh}, 'ELGR' ${elgr}`;
-
-            val1.textContent = wght;
-            val2.textContent = elsh;
-            val3.textContent = elgr;
+            v1.textContent = wght; v2.textContent = elsh; v3.textContent = elgr;
         }
 
-        // 이벤트 리스너
-        slider1.addEventListener('input', updateFont);
-        slider2.addEventListener('input', updateFont);
-        slider3.addEventListener('input', updateFont);
+        [s1, s2, s3].forEach(s => s.addEventListener('input', update));
         
-        // 붙여넣기 시 서식 제거
         editor.addEventListener('paste', (e) => {
             e.preventDefault();
-            const text = (e.originalEvent || e).clipboardData.getData('text/plain');
-            document.execCommand('insertText', false, text);
+            document.execCommand('insertText', false, (e.originalEvent || e).clipboardData.getData('text/plain'));
         });
 
-        // 초기화
-        updateFont();
+        update();
     </script>
 </body>
 </html>
