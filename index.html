@@ -6,133 +6,107 @@
     <title>Handjet Variable Font Playground</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- 1. 구글 폰트 (Handjet) 불러오기: 영문, 숫자용 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Handjet:ELGR,ELSH,wght@1..2,0..16,100..900&display=swap" rel="stylesheet">
+    
     <style>
-        /* 1. 폰트 로드 (캐시 방지용 v=2 적용) */
+        /* 2. 로컬 폰트 (한글 전용) 설정 */
         @font-face {
             font-family: 'HandjetLocal';
-            src: url('HandjetVF-All.ttf?v=2') format('truetype');
+            src: url('HandjetVF-All.ttf?v=3') format('truetype');
             font-weight: 100 900;
             font-style: normal;
-            font-display: block;
+            font-display: swap;
+            /* [핵심] 한글 범위(음절, 자모)만 이 폰트를 사용하도록 제한 */
+            unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7A3, U+D7B0-D7FF;
         }
 
-        /* 2. 전체 페이지 스타일 */
         body {
-            /* 배경색 #D3FF73 적용 */
-            background-color: #D3FF73; 
-            color: black;
+            background-color: #D3FF73; /* 배경색 */
+            color: black; /* 텍스트 완전 검정 */
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden; /* 스크롤 방지 */
+            overflow: hidden;
             margin: 0;
         }
 
-        /* 3. 에디터 영역 스타일 */
         #editor {
-            font-family: 'HandjetLocal', sans-serif;
-            /* 좌측 상단 정렬 */
+            /* [중요] 한글(Local)을 먼저 쓰고, 없으면 구글(Handjet)을 씁니다 */
+            font-family: 'HandjetLocal', 'Handjet', sans-serif;
+            
             text-align: left;
             align-items: flex-start;
             justify-content: flex-start;
             
             width: 100%;
-            height: 100vh; /* 전체 높이 */
-            padding: 20px; /* 약간의 마진 */
+            height: 100vh;
+            padding: 20px;
             box-sizing: border-box;
             
             outline: none;
-            /* 폰트 설정 초기값 (자바스크립트에서 덮어씌움) */
+            /* 초기값: 30pt */
+            font-size: 30pt;
             font-variation-settings: 'wght' 400, 'ELSH' 2, 'ELGR' 1.0;
             line-height: 1.2;
             word-break: break-all;
-            overflow-y: auto; /* 내용이 많으면 스크롤 */
+            overflow-y: auto;
         }
 
-        /* 플레이스홀더 */
+        /* 플레이스홀더 (미리보기 텍스트) */
         #editor:empty:before {
             content: '핸드젯, try typing handjet';
-            color: rgba(0,0,0,0.3); /* 연한 검정 */
+            color: black; /* 요청하신 대로 불투명도 없이 완전 검정 */
             pointer-events: none;
         }
 
-        /* 4. 슬라이더 박스 스타일 (이중 테두리 & 흰색 배경) */
+        /* 컨트롤 패널 스타일 */
         .control-panel {
             background-color: white;
-            /* 검은색 1pt 이중 테두리 효과 */
             border: 1px solid black;
             box-shadow: 0 0 0 2px white, 0 0 0 3px black; 
-            
-            font-family: 'HandjetLocal', sans-serif; /* 슬라이더 글씨체도 Handjet */
+            font-family: 'Handjet', sans-serif; /* 패널 UI는 영문이므로 구글폰트 사용 */
             font-weight: 600;
         }
 
-        /* 5. 커스텀 슬라이더 (Range Input) 디자인 */
+        /* 슬라이더 스타일 */
         input[type=range] {
             -webkit-appearance: none; 
             background: transparent; 
             width: 100%;
             margin: 10px 0;
         }
-        
-        /* 슬라이더 트랙 (바) - 검정 1pt 선 */
         input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 1px;
-            cursor: pointer;
-            background: black;
-            border: none;
+            width: 100%; height: 1px; cursor: pointer;
+            background: black; border: none;
         }
-        
-        /* 슬라이더 썸 (버튼) - #D3FF73 배경 + 검정 테두리 */
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            height: 16px;
-            width: 16px;
+            height: 16px; width: 16px;
             border-radius: 50%;
-            background: #D3FF73;
-            border: 1px solid black;
-            cursor: pointer;
-            margin-top: -8px; /* 트랙 중앙에 오도록 위치 조정 */
+            background: #D3FF73; border: 1px solid black;
+            cursor: pointer; margin-top: -8px;
         }
-
-        /* 파이어폭스용 스타일 */
-        input[type=range]::-moz-range-track {
-            width: 100%;
-            height: 1px;
-            cursor: pointer;
-            background: black;
-        }
-        input[type=range]::-moz-range-thumb {
-            height: 16px;
-            width: 16px;
-            border: 1px solid black;
-            border-radius: 50%;
-            background: #D3FF73;
-            cursor: pointer;
-        }
-
     </style>
 </head>
 <body class="h-screen flex flex-col">
 
-    <!-- 메인 텍스트 에디터 -->
     <div id="editor" contenteditable="true" spellcheck="false" class="scrollbar-hide"></div>
 
-    <!-- 하단 플로팅 컨트롤 패널 -->
     <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[95%] max-w-6xl z-50">
         <div class="control-panel p-4 sm:p-6 rounded-none">
-            
-            <!-- 슬라이더 컨테이너: 일렬 배치 (모바일은 2줄, PC는 1줄) -->
             <div class="flex flex-wrap md:flex-nowrap gap-6 items-center justify-between">
                 
-                <!-- 1. Size Slider -->
+                <!-- Size Slider (pt 단위) -->
                 <div class="flex flex-col w-full md:w-1/4">
                     <div class="flex justify-between text-lg mb-[-5px]">
-                        <label>Size</label> <span id="val-size">180</span>
+                        <label>Size</label> <span id="val-size">30pt</span>
                     </div>
-                    <input type="range" id="slider-size" min="10" max="400" value="180" step="1">
+                    <!-- 10pt ~ 200pt 범위 -->
+                    <input type="range" id="slider-size" min="10" max="200" value="30" step="1">
                 </div>
 
-                <!-- 2. Weight Slider -->
+                <!-- Weight Slider -->
                 <div class="flex flex-col w-full md:w-1/4">
                     <div class="flex justify-between text-lg mb-[-5px]">
                         <label>Weight</label> <span id="val-wght">400</span>
@@ -140,7 +114,7 @@
                     <input type="range" id="slider-wght" min="100" max="900" value="400" step="1">
                 </div>
 
-                <!-- 3. Shape Slider -->
+                <!-- Shape Slider -->
                 <div class="flex flex-col w-full md:w-1/4">
                     <div class="flex justify-between text-lg mb-[-5px]">
                         <label>Shape</label> <span id="val-elsh">2</span>
@@ -148,7 +122,7 @@
                     <input type="range" id="slider-elsh" min="0" max="16" value="2" step="0.1">
                 </div>
 
-                <!-- 4. Grid Slider -->
+                <!-- Grid Slider -->
                 <div class="flex flex-col w-full md:w-1/4">
                     <div class="flex justify-between text-lg mb-[-5px]">
                         <label>Grid</label> <span id="val-elgr">1.0</span>
@@ -162,18 +136,8 @@
 
     <script>
         const editor = document.getElementById('editor');
-        
-        // 슬라이더 요소 가져오기
-        const sSize = document.getElementById('slider-size');
-        const sWght = document.getElementById('slider-wght');
-        const sElsh = document.getElementById('slider-elsh');
-        const sElgr = document.getElementById('slider-elgr');
-
-        // 값 표시 요소 가져오기
-        const vSize = document.getElementById('val-size');
-        const vWght = document.getElementById('val-wght');
-        const vElsh = document.getElementById('val-elsh');
-        const vElgr = document.getElementById('val-elgr');
+        const [sSize, sWght, sElsh, sElgr] = ['size', 'wght', 'elsh', 'elgr'].map(k => document.getElementById('slider-' + k));
+        const [vSize, vWght, vElsh, vElgr] = ['size', 'wght', 'elsh', 'elgr'].map(k => document.getElementById('val-' + k));
 
         function update() {
             const size = sSize.value;
@@ -181,32 +145,26 @@
             const elsh = sElsh.value;
             const elgr = sElgr.value;
 
-            // 폰트 크기 적용
-            editor.style.fontSize = `${size}px`;
-            
-            // 배리어블 축 적용
+            // px 대신 pt 단위 사용
+            editor.style.fontSize = `${size}pt`;
             editor.style.fontVariationSettings = `'wght' ${wght}, 'ELSH' ${elsh}, 'ELGR' ${elgr}`;
 
-            // 값 텍스트 업데이트
-            vSize.textContent = size + "px";
+            vSize.textContent = size + "pt";
             vWght.textContent = wght;
             vElsh.textContent = elsh;
             vElgr.textContent = elgr;
         }
 
-        // 이벤트 연결
         [sSize, sWght, sElsh, sElgr].forEach(s => s.addEventListener('input', update));
         
-        // 붙여넣기 시 서식 제거 (Plain Text만 붙여넣기)
         editor.addEventListener('paste', (e) => {
             e.preventDefault();
             const text = (e.originalEvent || e).clipboardData.getData('text/plain');
             document.execCommand('insertText', false, text);
         });
 
-        // 초기화
         update();
-        editor.focus(); // 페이지 로드 시 에디터에 포커스
+        editor.focus();
     </script>
 </body>
 </html>
