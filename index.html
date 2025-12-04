@@ -3,156 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Handjet Variable Font Playground (Debug Mode)</title>
+    <title>Handjet Variable Font Playground</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        /* * [폰트 연결 설정] 
-         * ?v=1 을 붙여서 브라우저가 강제로 파일을 새로 불러오게 합니다 (캐시 문제 해결)
-         */
+        /* 1. 폰트 로드 (캐시 방지용 v=2 적용) */
         @font-face {
             font-family: 'HandjetLocal';
-            src: url('./HandjetVF-All.ttf?v=1') format('truetype');
+            src: url('HandjetVF-All.ttf?v=2') format('truetype');
+            font-weight: 100 900;
             font-style: normal;
-            font-display: block; /* 로딩될 때까지 텍스트 숨김 (로딩 여부 확인용) */
+            font-display: block;
         }
 
+        /* 2. 전체 페이지 스타일 */
         body {
+            /* 배경색 #D3FF73 적용 */
+            background-color: #D3FF73; 
+            color: black;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden;
+            overflow: hidden; /* 스크롤 방지 */
+            margin: 0;
         }
 
+        /* 3. 에디터 영역 스타일 */
         #editor {
-            font-family: 'HandjetLocal', sans-serif; 
+            font-family: 'HandjetLocal', sans-serif;
+            /* 좌측 상단 정렬 */
+            text-align: left;
+            align-items: flex-start;
+            justify-content: flex-start;
+            
+            width: 100%;
+            height: 100vh; /* 전체 높이 */
+            padding: 20px; /* 약간의 마진 */
+            box-sizing: border-box;
+            
             outline: none;
+            /* 폰트 설정 초기값 (자바스크립트에서 덮어씌움) */
             font-variation-settings: 'wght' 400, 'ELSH' 2, 'ELGR' 1.0;
-            transition: font-variation-settings 0.1s linear;
+            line-height: 1.2;
+            word-break: break-all;
+            overflow-y: auto; /* 내용이 많으면 스크롤 */
         }
 
+        /* 플레이스홀더 */
         #editor:empty:before {
-            content: '여기를 클릭해서 타이핑해보세요!';
-            color: #a0aec0;
+            content: '핸드젯, try typing handjet';
+            color: rgba(0,0,0,0.3); /* 연한 검정 */
             pointer-events: none;
         }
 
-        /* 슬라이더 디자인 */
-        input[type=range] { -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none; height: 16px; width: 16px;
-            border-radius: 50%; background: #2563EB; cursor: pointer;
-            margin-top: -6px; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        /* 4. 슬라이더 박스 스타일 (이중 테두리 & 흰색 배경) */
+        .control-panel {
+            background-color: white;
+            /* 검은색 1pt 이중 테두리 효과 */
+            border: 1px solid black;
+            box-shadow: 0 0 0 2px white, 0 0 0 3px black; 
+            
+            font-family: 'HandjetLocal', sans-serif; /* 슬라이더 글씨체도 Handjet */
+            font-weight: 600;
         }
+
+        /* 5. 커스텀 슬라이더 (Range Input) 디자인 */
+        input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent; 
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        /* 슬라이더 트랙 (바) - 검정 1pt 선 */
         input[type=range]::-webkit-slider-runnable-track {
-            width: 100%; height: 4px; cursor: pointer;
-            background: #E2E8F0; border-radius: 2px;
+            width: 100%;
+            height: 1px;
+            cursor: pointer;
+            background: black;
+            border: none;
         }
-        @media (prefers-color-scheme: dark) {
-            input[type=range]::-webkit-slider-runnable-track { background: #4B5563; }
+        
+        /* 슬라이더 썸 (버튼) - #D3FF73 배경 + 검정 테두리 */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #D3FF73;
+            border: 1px solid black;
+            cursor: pointer;
+            margin-top: -8px; /* 트랙 중앙에 오도록 위치 조정 */
         }
+
+        /* 파이어폭스용 스타일 */
+        input[type=range]::-moz-range-track {
+            width: 100%;
+            height: 1px;
+            cursor: pointer;
+            background: black;
+        }
+        input[type=range]::-moz-range-thumb {
+            height: 16px;
+            width: 16px;
+            border: 1px solid black;
+            border-radius: 50%;
+            background: #D3FF73;
+            cursor: pointer;
+        }
+
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 h-screen flex flex-col relative transition-colors duration-300">
+<body class="h-screen flex flex-col">
 
-    <header class="absolute top-0 right-0 p-4 z-50 flex items-center gap-4">
-        <div class="text-xs text-gray-500 font-mono">Font: HandjetVF-All.ttf</div>
-    </header>
+    <!-- 메인 텍스트 에디터 -->
+    <div id="editor" contenteditable="true" spellcheck="false" class="scrollbar-hide"></div>
 
-    <main class="flex-grow w-full h-full flex items-center justify-center p-4 sm:p-10 relative z-10">
-        <div id="editor" contenteditable="true" spellcheck="false" class="w-full h-full text-center text-5xl sm:text-7xl md:text-8xl lg:text-9xl break-words whitespace-pre-wrap overflow-y-auto flex flex-col justify-center items-center scrollbar-hide focus:outline-none">
-핸드젯
-한글판
-테스트
-        </div>
-    </main>
-
-    <!-- 하단 컨트롤 패널 -->
-    <footer class="fixed bottom-0 left-0 w-full p-6 bg-white/90 dark:bg-black/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-50 transition-all duration-300">
-        <!-- 진단 메시지 창 (디버깅용) -->
-        <div id="debug-box" class="mb-4 p-3 rounded text-xs font-mono bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700">
-            <span class="font-bold">상태 점검:</span> <span id="debug-msg">확인 중...</span>
-        </div>
-
-        <div class="max-w-4xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-2">
-                <div class="flex flex-col gap-2">
-                    <div class="flex justify-between items-center text-sm font-medium text-gray-600 dark:text-gray-400">
-                        <label>Weight</label> <span id="val1" class="font-mono text-blue-600">400</span>
+    <!-- 하단 플로팅 컨트롤 패널 -->
+    <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[95%] max-w-6xl z-50">
+        <div class="control-panel p-4 sm:p-6 rounded-none">
+            
+            <!-- 슬라이더 컨테이너: 일렬 배치 (모바일은 2줄, PC는 1줄) -->
+            <div class="flex flex-wrap md:flex-nowrap gap-6 items-center justify-between">
+                
+                <!-- 1. Size Slider -->
+                <div class="flex flex-col w-full md:w-1/4">
+                    <div class="flex justify-between text-lg mb-[-5px]">
+                        <label>Size</label> <span id="val-size">180</span>
                     </div>
-                    <input type="range" id="slider1" min="100" max="900" value="400" step="1" class="w-full">
+                    <input type="range" id="slider-size" min="10" max="400" value="180" step="1">
                 </div>
-                <div class="flex flex-col gap-2">
-                    <div class="flex justify-between items-center text-sm font-medium text-gray-600 dark:text-gray-400">
-                        <label>Shape (ELSH)</label> <span id="val2" class="font-mono text-blue-600">2</span>
+
+                <!-- 2. Weight Slider -->
+                <div class="flex flex-col w-full md:w-1/4">
+                    <div class="flex justify-between text-lg mb-[-5px]">
+                        <label>Weight</label> <span id="val-wght">400</span>
                     </div>
-                    <input type="range" id="slider2" min="0" max="16" value="2" step="0.1" class="w-full">
+                    <input type="range" id="slider-wght" min="100" max="900" value="400" step="1">
                 </div>
-                <div class="flex flex-col gap-2">
-                    <div class="flex justify-between items-center text-sm font-medium text-gray-600 dark:text-gray-400">
-                        <label>Grid (ELGR)</label> <span id="val3" class="font-mono text-blue-600">1.0</span>
+
+                <!-- 3. Shape Slider -->
+                <div class="flex flex-col w-full md:w-1/4">
+                    <div class="flex justify-between text-lg mb-[-5px]">
+                        <label>Shape</label> <span id="val-elsh">2</span>
                     </div>
-                    <input type="range" id="slider3" min="1.0" max="2.0" value="1.0" step="0.01" class="w-full">
+                    <input type="range" id="slider-elsh" min="0" max="16" value="2" step="0.1">
                 </div>
+
+                <!-- 4. Grid Slider -->
+                <div class="flex flex-col w-full md:w-1/4">
+                    <div class="flex justify-between text-lg mb-[-5px]">
+                        <label>Grid</label> <span id="val-elgr">1.0</span>
+                    </div>
+                    <input type="range" id="slider-elgr" min="1.0" max="2.0" value="1.0" step="0.01">
+                </div>
+
             </div>
         </div>
-    </footer>
+    </div>
 
     <script>
-        // --- 폰트 연결 상태 자가 진단 스크립트 ---
-        const debugMsg = document.getElementById('debug-msg');
-        const debugBox = document.getElementById('debug-box');
-
-        async function checkFontLoading() {
-            try {
-                debugMsg.innerHTML = "1단계: 폰트 파일 찾는 중...";
-                // 1. 파일이 실제 존재하는지 네트워크 요청으로 확인
-                const response = await fetch('./HandjetVF-All.ttf');
-                
-                if (!response.ok) {
-                    throw new Error(`파일을 찾을 수 없음 (${response.status})`);
-                }
-                
-                debugMsg.innerHTML = "2단계: 폰트 로딩 중...";
-                // 2. 브라우저 폰트 로더 확인
-                const font = new FontFace('HandjetLocal', 'url(./HandjetVF-All.ttf)');
-                await font.load();
-                document.fonts.add(font);
-                
-                // 성공 시
-                debugBox.className = "mb-4 p-3 rounded text-xs font-mono bg-green-100 text-green-800 border border-green-300";
-                debugMsg.innerHTML = "✅ <b>성공!</b> 폰트 파일을 찾았고 로딩했습니다. 글자가 바뀌었나요?";
-                
-            } catch (error) {
-                // 실패 시 에러 메시지 출력
-                debugBox.className = "mb-4 p-3 rounded text-xs font-mono bg-red-100 text-red-800 border border-red-300";
-                debugMsg.innerHTML = `❌ <b>오류 발생:</b> ${error.message}<br>파일명이 'HandjetVF-All.ttf'가 맞는지(대소문자 포함) 꼭 확인하세요!`;
-            }
-        }
-        
-        // 페이지 로드 후 진단 시작
-        window.addEventListener('load', checkFontLoading);
-
-
-        // --- 기존 슬라이더 로직 ---
         const editor = document.getElementById('editor');
-        const [s1, s2, s3] = ['slider1', 'slider2', 'slider3'].map(id => document.getElementById(id));
-        const [v1, v2, v3] = ['val1', 'val2', 'val3'].map(id => document.getElementById(id));
+        
+        // 슬라이더 요소 가져오기
+        const sSize = document.getElementById('slider-size');
+        const sWght = document.getElementById('slider-wght');
+        const sElsh = document.getElementById('slider-elsh');
+        const sElgr = document.getElementById('slider-elgr');
+
+        // 값 표시 요소 가져오기
+        const vSize = document.getElementById('val-size');
+        const vWght = document.getElementById('val-wght');
+        const vElsh = document.getElementById('val-elsh');
+        const vElgr = document.getElementById('val-elgr');
 
         function update() {
-            const wght = s1.value;
-            const elsh = s2.value;
-            const elgr = s3.value;
+            const size = sSize.value;
+            const wght = sWght.value;
+            const elsh = sElsh.value;
+            const elgr = sElgr.value;
+
+            // 폰트 크기 적용
+            editor.style.fontSize = `${size}px`;
+            
+            // 배리어블 축 적용
             editor.style.fontVariationSettings = `'wght' ${wght}, 'ELSH' ${elsh}, 'ELGR' ${elgr}`;
-            v1.textContent = wght; v2.textContent = elsh; v3.textContent = elgr;
+
+            // 값 텍스트 업데이트
+            vSize.textContent = size + "px";
+            vWght.textContent = wght;
+            vElsh.textContent = elsh;
+            vElgr.textContent = elgr;
         }
 
-        [s1, s2, s3].forEach(s => s.addEventListener('input', update));
+        // 이벤트 연결
+        [sSize, sWght, sElsh, sElgr].forEach(s => s.addEventListener('input', update));
         
+        // 붙여넣기 시 서식 제거 (Plain Text만 붙여넣기)
         editor.addEventListener('paste', (e) => {
             e.preventDefault();
-            document.execCommand('insertText', false, (e.originalEvent || e).clipboardData.getData('text/plain'));
+            const text = (e.originalEvent || e).clipboardData.getData('text/plain');
+            document.execCommand('insertText', false, text);
         });
 
+        // 초기화
         update();
+        editor.focus(); // 페이지 로드 시 에디터에 포커스
     </script>
 </body>
 </html>
