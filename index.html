@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Handjet Variable Font Playground</title>
+    <title>Handjet Variable Font Playground (Debug Mode)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        /* [폰트 설정] 파일명이 HandjetVF-All.ttf 인지 꼭 확인하세요! */
+        /* * [폰트 연결 설정] 
+         * ?v=1 을 붙여서 브라우저가 강제로 파일을 새로 불러오게 합니다 (캐시 문제 해결)
+         */
         @font-face {
             font-family: 'HandjetLocal';
-            src: url('HandjetVF-All.ttf') format('truetype');
-            font-weight: 100 900;
+            src: url('./HandjetVF-All.ttf?v=1') format('truetype');
             font-style: normal;
+            font-display: block; /* 로딩될 때까지 텍스트 숨김 (로딩 여부 확인용) */
         }
 
         body {
@@ -28,11 +30,12 @@
         }
 
         #editor:empty:before {
-            content: 'Click & Type...';
+            content: '여기를 클릭해서 타이핑해보세요!';
             color: #a0aec0;
             pointer-events: none;
         }
 
+        /* 슬라이더 디자인 */
         input[type=range] { -webkit-appearance: none; background: transparent; }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none; height: 16px; width: 16px;
@@ -62,7 +65,13 @@
         </div>
     </main>
 
+    <!-- 하단 컨트롤 패널 -->
     <footer class="fixed bottom-0 left-0 w-full p-6 bg-white/90 dark:bg-black/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-50 transition-all duration-300">
+        <!-- 진단 메시지 창 (디버깅용) -->
+        <div id="debug-box" class="mb-4 p-3 rounded text-xs font-mono bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700">
+            <span class="font-bold">상태 점검:</span> <span id="debug-msg">확인 중...</span>
+        </div>
+
         <div class="max-w-4xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-2">
                 <div class="flex flex-col gap-2">
@@ -88,6 +97,42 @@
     </footer>
 
     <script>
+        // --- 폰트 연결 상태 자가 진단 스크립트 ---
+        const debugMsg = document.getElementById('debug-msg');
+        const debugBox = document.getElementById('debug-box');
+
+        async function checkFontLoading() {
+            try {
+                debugMsg.innerHTML = "1단계: 폰트 파일 찾는 중...";
+                // 1. 파일이 실제 존재하는지 네트워크 요청으로 확인
+                const response = await fetch('./HandjetVF-All.ttf');
+                
+                if (!response.ok) {
+                    throw new Error(`파일을 찾을 수 없음 (${response.status})`);
+                }
+                
+                debugMsg.innerHTML = "2단계: 폰트 로딩 중...";
+                // 2. 브라우저 폰트 로더 확인
+                const font = new FontFace('HandjetLocal', 'url(./HandjetVF-All.ttf)');
+                await font.load();
+                document.fonts.add(font);
+                
+                // 성공 시
+                debugBox.className = "mb-4 p-3 rounded text-xs font-mono bg-green-100 text-green-800 border border-green-300";
+                debugMsg.innerHTML = "✅ <b>성공!</b> 폰트 파일을 찾았고 로딩했습니다. 글자가 바뀌었나요?";
+                
+            } catch (error) {
+                // 실패 시 에러 메시지 출력
+                debugBox.className = "mb-4 p-3 rounded text-xs font-mono bg-red-100 text-red-800 border border-red-300";
+                debugMsg.innerHTML = `❌ <b>오류 발생:</b> ${error.message}<br>파일명이 'HandjetVF-All.ttf'가 맞는지(대소문자 포함) 꼭 확인하세요!`;
+            }
+        }
+        
+        // 페이지 로드 후 진단 시작
+        window.addEventListener('load', checkFontLoading);
+
+
+        // --- 기존 슬라이더 로직 ---
         const editor = document.getElementById('editor');
         const [s1, s2, s3] = ['slider1', 'slider2', 'slider3'].map(id => document.getElementById(id));
         const [v1, v2, v3] = ['val1', 'val2', 'val3'].map(id => document.getElementById(id));
