@@ -6,21 +6,20 @@
     <title>Handjet Variable Font Playground</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 1. [영어/숫자용] 구글 폰트 불러오기 (가장 안정적) -->
+    <!-- 1. UI용 구글 폰트 (숫자/영어 깨짐 방지용) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Handjet:ELGR,ELSH,wght@1..2,0..16,100..900&display=swap" rel="stylesheet">
     
     <style>
-        /* 2. [한글용] 로컬 파일 설정 */
+        /* 2. 에디터용 로컬 폰트 (배리어블 적용용) */
         @font-face {
-            font-family: 'HandjetKR'; /* 이름 구분 */
-            src: url('HandjetVF-All.ttf') format('truetype');
-            /* 한글 범위에만 이 폰트를 씁니다 */
-            unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7A3, U+D7B0-D7FF;
+            font-family: 'HandjetLocal';
+            src: url('HandjetVF-All.ttf?v=4') format('truetype');
             font-weight: 100 900;
             font-style: normal;
-            font-display: swap;
+            font-display: block;
+            /* unicode-range를 제거하여 모든 글자에 이 폰트를 강제 적용합니다 */
         }
 
         body {
@@ -31,10 +30,9 @@
             margin: 0;
         }
 
-        /* 에디터 스타일 */
+        /* 메인 에디터: 오직 로컬 폰트만 사용 (배리어블 완벽 호환) */
         #editor {
-            /* [핵심] 한글(HandjetKR)을 먼저 찾고, 없으면 영문(Handjet)을 씁니다 */
-            font-family: 'HandjetKR', 'Handjet', sans-serif;
+            font-family: 'HandjetLocal', sans-serif;
             
             text-align: left;
             display: block;
@@ -42,12 +40,11 @@
             height: 100vh;
             padding: 20px;
             box-sizing: border-box;
+            
             outline: none;
+            font-size: 30pt; /* 초기 크기 */
             
-            /* 30pt 설정 */
-            font-size: 30pt;
-            
-            /* 배리어블 초기값 */
+            /* 초기 배리어블 값 */
             font-variation-settings: 'wght' 400, 'ELSH' 2, 'ELGR' 1.0;
             
             line-height: 1.2;
@@ -62,15 +59,16 @@
             pointer-events: none;
         }
 
-        /* 컨트롤 패널 UI */
+        /* 컨트롤 패널: UI 가독성을 위해 구글 폰트 사용 */
         .control-box {
             background-color: white;
             border: 1px solid black;
             box-shadow: 0 0 0 3px white, 0 0 0 4px black; 
-            font-family: 'Handjet', sans-serif; /* UI는 영문이므로 구글폰트 사용 */
+            font-family: 'Handjet', sans-serif; /* 여기는 구글 폰트! */
             font-weight: 600;
         }
 
+        /* 슬라이더 스타일 */
         input[type=range] {
             -webkit-appearance: none; 
             background: transparent; 
@@ -96,9 +94,10 @@
 </head>
 <body class="h-screen flex flex-col">
 
+    <!-- 에디터 영역 -->
     <div id="editor" contenteditable="true" spellcheck="false" class="scrollbar-hide"></div>
 
-    <!-- 하단 플로팅 컨트롤 패널 -->
+    <!-- 컨트롤 패널 영역 -->
     <div class="fixed bottom-8 left-1/2 transform -translate-x-1/2 w-[90%] max-w-5xl z-50">
         <div class="control-box p-4 sm:p-5">
             <div class="flex flex-col sm:flex-row gap-4 sm:gap-8 items-center justify-between">
@@ -150,9 +149,11 @@
             const elsh = sElsh.value;
             const elgr = sElgr.value;
 
+            // 에디터: 로컬 폰트 설정 적용
             editor.style.fontSize = `${size}pt`;
             editor.style.fontVariationSettings = `'wght' ${wght}, 'ELSH' ${elsh}, 'ELGR' ${elgr}`;
 
+            // 수치값 업데이트
             vSize.textContent = size + "pt";
             vWght.textContent = wght;
             vElsh.textContent = elsh;
