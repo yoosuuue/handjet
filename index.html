@@ -6,20 +6,22 @@
     <title>Handjet Variable Font Playground</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 1. 구글 폰트 (Handjet) 불러오기: 영문, 숫자용 -->
+    <!-- 1. 구글 폰트 불러오기 (영어, 숫자, 기호용 - 배리어블 지원) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- 축 범위(Weight, ELGR, ELSH)를 모두 명시해서 배리어블 기능을 활성화합니다 -->
     <link href="https://fonts.googleapis.com/css2?family=Handjet:ELGR,ELSH,wght@1..2,0..16,100..900&display=swap" rel="stylesheet">
     
     <style>
-        /* 2. 로컬 폰트 (한글 전용) 설정 */
+        /* 2. 로컬 폰트 설정 (한글 전용) */
         @font-face {
             font-family: 'HandjetLocal';
-            src: url('HandjetVF-All.ttf?v=3') format('truetype');
+            /* 같은 폴더의 파일 사용 */
+            src: url('HandjetVF-All.ttf') format('truetype');
             font-weight: 100 900;
             font-style: normal;
             font-display: swap;
-            /* [핵심] 한글 범위(음절, 자모)만 이 폰트를 사용하도록 제한 */
+            /* [핵심] 이 폰트는 오직 '한글'에만 적용합니다. 나머지는 구글 폰트로 넘어갑니다. */
             unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7A3, U+D7B0-D7FF;
         }
 
@@ -32,7 +34,7 @@
         }
 
         #editor {
-            /* [중요] 한글(Local)을 먼저 쓰고, 없으면 구글(Handjet)을 씁니다 */
+            /* [중요] 한글(Local) 우선 -> 없으면 구글(Handjet) 사용 */
             font-family: 'HandjetLocal', 'Handjet', sans-serif;
             
             text-align: left;
@@ -41,31 +43,32 @@
             
             width: 100%;
             height: 100vh;
-            padding: 20px;
+            padding: 20px; /* 좌측 상단 여백 */
             box-sizing: border-box;
             
             outline: none;
-            /* 초기값: 30pt */
+            /* 글자 크기 30pt로 설정 */
             font-size: 30pt;
+            /* 초기 배리어블 설정 */
             font-variation-settings: 'wght' 400, 'ELSH' 2, 'ELGR' 1.0;
             line-height: 1.2;
             word-break: break-all;
             overflow-y: auto;
         }
 
-        /* 플레이스홀더 (미리보기 텍스트) */
+        /* 플레이스홀더 (완전 검정색) */
         #editor:empty:before {
             content: '핸드젯, try typing handjet';
-            color: black; /* 요청하신 대로 불투명도 없이 완전 검정 */
+            color: black; /* 투명도 없이 완전 검정 */
             pointer-events: none;
         }
 
-        /* 컨트롤 패널 스타일 */
+        /* 하단 컨트롤 패널 스타일 */
         .control-panel {
             background-color: white;
             border: 1px solid black;
             box-shadow: 0 0 0 2px white, 0 0 0 3px black; 
-            font-family: 'Handjet', sans-serif; /* 패널 UI는 영문이므로 구글폰트 사용 */
+            font-family: 'Handjet', sans-serif;
             font-weight: 600;
         }
 
@@ -87,12 +90,22 @@
             background: #D3FF73; border: 1px solid black;
             cursor: pointer; margin-top: -8px;
         }
+        /* 파이어폭스 지원 */
+        input[type=range]::-moz-range-track {
+            width: 100%; height: 1px; cursor: pointer; background: black;
+        }
+        input[type=range]::-moz-range-thumb {
+            height: 16px; width: 16px; border: 1px solid black;
+            border-radius: 50%; background: #D3FF73; cursor: pointer;
+        }
     </style>
 </head>
 <body class="h-screen flex flex-col">
 
+    <!-- 에디터 -->
     <div id="editor" contenteditable="true" spellcheck="false" class="scrollbar-hide"></div>
 
+    <!-- 하단 플로팅 패널 -->
     <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[95%] max-w-6xl z-50">
         <div class="control-panel p-4 sm:p-6 rounded-none">
             <div class="flex flex-wrap md:flex-nowrap gap-6 items-center justify-between">
@@ -102,7 +115,6 @@
                     <div class="flex justify-between text-lg mb-[-5px]">
                         <label>Size</label> <span id="val-size">30pt</span>
                     </div>
-                    <!-- 10pt ~ 200pt 범위 -->
                     <input type="range" id="slider-size" min="10" max="200" value="30" step="1">
                 </div>
 
@@ -136,8 +148,16 @@
 
     <script>
         const editor = document.getElementById('editor');
-        const [sSize, sWght, sElsh, sElgr] = ['size', 'wght', 'elsh', 'elgr'].map(k => document.getElementById('slider-' + k));
-        const [vSize, vWght, vElsh, vElgr] = ['size', 'wght', 'elsh', 'elgr'].map(k => document.getElementById('val-' + k));
+        
+        const sSize = document.getElementById('slider-size');
+        const sWght = document.getElementById('slider-wght');
+        const sElsh = document.getElementById('slider-elsh');
+        const sElgr = document.getElementById('slider-elgr');
+
+        const vSize = document.getElementById('val-size');
+        const vWght = document.getElementById('val-wght');
+        const vElsh = document.getElementById('val-elsh');
+        const vElgr = document.getElementById('val-elgr');
 
         function update() {
             const size = sSize.value;
@@ -145,8 +165,10 @@
             const elsh = sElsh.value;
             const elgr = sElgr.value;
 
-            // px 대신 pt 단위 사용
+            // 폰트 크기 (pt 단위 적용)
             editor.style.fontSize = `${size}pt`;
+            
+            // 배리어블 축 적용
             editor.style.fontVariationSettings = `'wght' ${wght}, 'ELSH' ${elsh}, 'ELGR' ${elgr}`;
 
             vSize.textContent = size + "pt";
